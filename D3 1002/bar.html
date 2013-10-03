@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang=en>
+<head><meta charset="utf-8">
+		<title>0924 joson test</title>
+		<script type="text/javascript" src="d3/d3.v3.js"></script>
+				<script type="text/javascript" src="jquery-2.0.0.min.js"></script>
+	</head>
+	<body>
+
+<script type="text/javascript">
+$(document).ready(function(){
+var dataset=[];
+var api_key = '1e5d7661cfce2b35';
+
+var api_obj = {
+
+					state:[ 'NJ', 'CA', 'MX', 'CA', 'TX', 'ID' ],
+					city: [ 'Hoboken', 'San_Diego', 'Mexico_City_Airport', 'Sacramento', 'Paris', 'Boise' ]
+
+			};
+for(var i = 0; i < api_obj.state.length; i++){
+
+				var url = 'http://api.wunderground.com/api/'+api_key+'/conditions/q/'+api_obj.state[i]+'/'+api_obj.city[i]+'.json?callback=?';
+				
+
+$.getJSON(url,function(json){
+
+var temp = json.current_observation.temp_f;
+dataset.push(temp);
+
+var dataSum= new Array();
+dataSum[0]=dataset[0];
+var color = d3.scale.category20();
+ 
+for(var i=1;i<dataset.length;i++){
+var j=i-1;
+dataSum[i]=dataset[i]+dataSum[j];
+
+}
+dataSum.reverse();
+if(dataSum.length==6){
+dataset.reverse();
+var canvas=d3.select("body").append("svg")
+		.attr("width",800)
+		.attr("height",400)
+		.append("g")
+		.attr("transform","translate("+200+","+100+")");
+
+/*var rect= canvas.append("rect")
+				.attr("x",10)
+				.attr("y",10)
+				.attr("width",function(d){return d})
+				.attr("height",100);
+*/			
+canvas.selectAll("rect")
+.data(dataSum)
+.enter()
+.append("svg:rect")
+.attr("x",0)
+//.attr("x",function(d,i){return d*i*2;})
+.attr("y",100)
+.attr("height",100)
+.attr("width",function(d){return d;})
+.attr("fill",function(d) {
+    return "hsl(" + Math.random() * 360 + ",100%,50%)";
+    });
+//console.log(temp);
+dataSum.reverse();
+console.log(dataSum);
+canvas.selectAll("text")
+			.data(dataset)
+			.enter()
+			.append("text")
+			.text(function(d){return d;})
+			.data(dataSum)
+			.attr("x",function(d){return d-20;})
+			.attr("transform","translate("+0+","+100+")");
+		
+};	
+
+});	
+};
+});
+
+/*bars.append("rect")
+			.attr("x",function(d){return d.x})
+			.attr("y",100)
+			.attr("width",function(d){return d.x})
+			.attr("height",100);
+
+*/
+</script>
+</body>
+</html>
